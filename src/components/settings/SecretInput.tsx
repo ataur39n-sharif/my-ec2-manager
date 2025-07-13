@@ -89,9 +89,9 @@ export default function SecretInput({
         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
         ${disabled
             ? 'bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed'
-            : 'bg-white border-gray-300 hover:border-gray-400 text-gray-900 cursor-text'
+            : 'bg-white border-gray-300 hover:border-gray-400 text-gray-900 cursor-text shadow-sm'
         }
-        ${focusedIndex >= 0 ? 'border-blue-500' : ''}
+        ${focusedIndex >= 0 ? 'border-blue-500 ring-2 ring-blue-200' : ''}
     `;
 
     return (
@@ -120,6 +120,9 @@ export default function SecretInput({
             <p className="text-sm text-gray-500 text-center">
                 {placeholder}
             </p>
+            <div className="text-xs text-gray-400 text-center">
+                <p>Use arrow keys to navigate • Paste to fill all boxes • Backspace to clear</p>
+            </div>
         </div>
     );
 } 
