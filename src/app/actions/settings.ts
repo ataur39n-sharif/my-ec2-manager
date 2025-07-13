@@ -13,7 +13,8 @@ import {
     type AWSCredentials,
     type Settings
 } from '@/lib/dynamodb-config';
-import { hashPassword, validatePassword } from '@/lib/password-utils';
+import { hashPassword } from '@/lib/password-utils';
+import { validateAWSCredentials, validateSettingsForm } from '@/lib/validation-utils';
 import { revalidatePath } from 'next/cache';
 
 // AWS Credentials Actions
@@ -24,10 +25,18 @@ export async function saveCredentialsAction(formData: FormData): Promise<{ succe
         const region = formData.get('region') as string;
         const profileName = formData.get('profileName') as string || 'default';
 
-        if (!accessKeyId || !secretAccessKey || !region) {
+        // Validate AWS credentials
+        const validation = validateAWSCredentials({
+            accessKeyId,
+            secretAccessKey,
+            region,
+            profileName
+        });
+
+        if (!validation.isValid) {
             return {
                 success: false,
-                message: 'Access Key ID, Secret Access Key, and Region are required'
+                message: `Validation failed: ${validation.errors.join(', ')}`
             };
         }
 
@@ -113,6 +122,23 @@ export async function updateCredentialsAction(formData: FormData): Promise<{ suc
             };
         }
 
+        // Validate AWS credentials if provided
+        if (accessKeyId || secretAccessKey || region) {
+            const validation = validateAWSCredentials({
+                accessKeyId: accessKeyId || '',
+                secretAccessKey: secretAccessKey || '',
+                region: region || '',
+                profileName: ''
+            });
+
+            if (!validation.isValid) {
+                return {
+                    success: false,
+                    message: `Validation failed: ${validation.errors.join(', ')}`
+                };
+            }
+        }
+
         const updates: Partial<AWSCredentials> = {};
         if (accessKeyId) updates.accessKeyId = accessKeyId;
         if (secretAccessKey) updates.secretAccessKey = secretAccessKey;
@@ -173,22 +199,18 @@ export async function saveSettingsAction(formData: FormData): Promise<{ success:
         const ec2Secret = formData.get('ec2Secret') as string || '';
         const ec2SecretEnabled = formData.get('ec2SecretEnabled') === 'true';
 
-        // Validate password if provided
-        if (password) {
-            const validation = validatePassword(password);
-            if (!validation.isValid) {
-                return {
-                    success: false,
-                    message: `Password validation failed: ${validation.errors.join(', ')}`
-                };
-            }
-        }
+        // Validate settings form data
+        const validation = validateSettingsForm({
+            username,
+            password,
+            ec2Secret,
+            ec2SecretEnabled
+        });
 
-        // Validate EC2 secret if enabled
-        if (ec2SecretEnabled && ec2Secret.length !== 6) {
+        if (!validation.isValid) {
             return {
                 success: false,
-                message: 'EC2 secret must be exactly 6 characters long'
+                message: `Validation failed: ${validation.errors.join(', ')}`
             };
         }
 
@@ -251,30 +273,32 @@ export async function updateSettingsAction(formData: FormData): Promise<{ succes
         const ec2Secret = formData.get('ec2Secret') as string;
         const ec2SecretEnabled = formData.get('ec2SecretEnabled') === 'true';
 
+        // Validate settings form data
+        const validation = validateSettingsForm({
+            username,
+            password,
+            ec2Secret,
+            ec2SecretEnabled
+        });
+
+        if (!validation.isValid) {
+            return {
+                success: false,
+                message: `Validation failed: ${validation.errors.join(', ')}`
+            };
+        }
+
         const updates: Partial<Settings> = {};
         if (username !== null) updates.username = username;
         if (ec2SecretEnabled !== null) updates.ec2SecretEnabled = ec2SecretEnabled;
 
         // Only hash password if a new one is provided
         if (password !== null && password !== '') {
-            const validation = validatePassword(password);
-            if (!validation.isValid) {
-                return {
-                    success: false,
-                    message: `Password validation failed: ${validation.errors.join(', ')}`
-                };
-            }
             updates.password = await hashPassword(password);
         }
 
         // Handle EC2 secret
         if (ec2Secret !== null) {
-            if (ec2SecretEnabled && ec2Secret.length !== 6) {
-                return {
-                    success: false,
-                    message: 'EC2 secret must be exactly 6 characters long'
-                };
-            }
             updates.ec2Secret = ec2SecretEnabled ? ec2Secret : '';
         }
 

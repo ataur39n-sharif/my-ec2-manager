@@ -1,9 +1,9 @@
 import { getApplications } from '@/app/actions/applications';
 import AutoRefresh from '@/components/AutoRefresh';
 import CancelButton from '@/components/CancelButton';
+import Navigation from '@/components/Navigation';
 import StartButton from '@/components/StartButton';
 import StopButton from '@/components/StopButton';
-import Link from 'next/link';
 
 export default async function ApplicationsPage() {
     // Fetch applications data from server actions
@@ -66,34 +66,7 @@ export default async function ApplicationsPage() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Header */}
-            <header className="bg-white shadow">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center py-6">
-                        <div className="flex items-center">
-                            <div className="flex-shrink-0">
-                                <Link href="/" className="text-2xl font-bold text-gray-900 hover:text-gray-700 transition-colors cursor-pointer">
-                                    EC2 Manager
-                                </Link>
-                            </div>
-                        </div>
-                        <nav className="hidden md:flex space-x-8">
-                            <Link
-                                href="/applications"
-                                className="text-gray-900 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium cursor-pointer"
-                            >
-                                Applications
-                            </Link>
-                            <Link
-                                href="/settings"
-                                className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium cursor-pointer"
-                            >
-                                Settings
-                            </Link>
-                        </nav>
-                    </div>
-                </div>
-            </header>
+            <Navigation />
 
             <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 {/* Page Header */}
@@ -288,6 +261,7 @@ export default async function ApplicationsPage() {
                                                     </svg>
                                                     <span className="text-sm text-blue-600 font-medium">Initializing...</span>
                                                 </div>
+                                                <CancelButton instanceId={app.id} instanceName={app.name} />
                                             </div>
                                         ) : app.status === 'stopping' ? (
                                             <div className="flex items-center space-x-2">

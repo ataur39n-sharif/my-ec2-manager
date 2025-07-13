@@ -1,3 +1,4 @@
+import SessionProvider from "@/components/SessionProvider";
 import { ModalProvider } from "@/contexts/ModalContext";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -28,9 +29,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ModalProvider>
-          {children}
-        </ModalProvider>
+        <SessionProvider>
+          <ModalProvider>
+            {children}
+          </ModalProvider>
+        </SessionProvider>
       </body>
     </html>
   );

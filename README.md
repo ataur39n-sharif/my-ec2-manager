@@ -4,6 +4,14 @@ A modern web application for managing AWS EC2 instances with real-time monitorin
 
 ## 🚀 Features
 
+### Authentication & Security
+- **NextAuth.js Integration**: Professional authentication system with JWT sessions
+- **Username/Password Login**: Secure login with settings-based credentials
+- **Protected Routes**: All pages protected with middleware-based authentication
+- **Session Management**: Persistent sessions with automatic logout
+- **Navigation with User Menu**: User dropdown with logout functionality
+- **Login Page**: Clean, responsive login interface with validation
+
 ### Dashboard
 - **Real-time EC2 Instance Data**: Fetches and displays actual AWS EC2 instances
 - **Live Statistics**: Shows total instances, running instances, and stopped instances
@@ -24,12 +32,13 @@ A modern web application for managing AWS EC2 instances with real-time monitorin
 - **Type-to-Delete**: Delete confirmation requires typing "delete" for security
 
 ### Application Settings
-- **Username/Password Configuration**: Simple application-level authentication
+- **Username/Password Configuration**: Authentication credentials stored in settings
 - **Password Security**: Passwords hashed using bcrypt before storage
-- **Password Validation**: Real-time password strength validation
+- **Password Validation**: Real-time password strength validation with comprehensive rules
 - **EC2 Secret Protection**: Optional 6-character secret for start/stop operations
 - **Settings Persistence**: All settings saved to DynamoDB
 - **Default Values**: Automatic loading of saved settings
+- **Protected Access**: Settings page requires authentication
 
 ### EC2 Secret Protection
 - **6-Character Secret**: Exactly 6 characters required when enabled
@@ -54,8 +63,11 @@ A modern web application for managing AWS EC2 instances with real-time monitorin
 ### Technical Features
 - **DynamoDB Integration**: Secure storage for credentials and settings
 - **AWS SDK Integration**: Real EC2 instance management
+- **NextAuth.js**: Professional authentication with JWT sessions
 - **Password Hashing**: bcrypt with 12 salt rounds for maximum security
 - **Secret Verification**: Server-side secret validation for EC2 operations
+- **Middleware Protection**: Route-level authentication with automatic redirects
+- **Validation System**: Comprehensive validation utilities for forms and data
 - **Responsive Design**: Works seamlessly on desktop and mobile
 - **Modern UI**: Clean, intuitive interface with smooth animations
 - **Type Safety**: Full TypeScript support
@@ -68,6 +80,7 @@ A modern web application for managing AWS EC2 instances with real-time monitorin
 - **Backend**: Next.js API Routes
 - **Database**: AWS DynamoDB
 - **AWS Integration**: AWS SDK v3
+- **Authentication**: NextAuth.js with JWT sessions
 - **Security**: bcryptjs for password hashing
 - **Package Manager**: pnpm
 - **State Management**: React Hooks & Context
@@ -97,6 +110,10 @@ pnpm install
 ### 3. Environment Setup
 Create a `.env.local` file in the root directory:
 ```env
+# NextAuth Configuration
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-nextauth-secret-key-here
+
 # AWS Configuration
 AWS_REGION=us-east-1
 AWS_ACCESS_KEY_ID=your_access_key
@@ -109,7 +126,10 @@ DYNAMODB_TABLE_NAME=ec2-manager
 ### 4. DynamoDB Setup
 Follow the [DynamoDB Setup Guide](./DYNAMODB_SETUP.md) to configure your DynamoDB table.
 
-### 5. Run the Application
+### 5. Authentication Setup
+Follow the [Authentication Setup Guide](./AUTH_SETUP.md) to configure NextAuth.js and set up your credentials.
+
+### 6. Run the Application
 ```bash
 # Development mode
 pnpm dev
@@ -120,6 +140,8 @@ pnpm start
 ```
 
 The application will be available at `http://localhost:3000`
+
+**Note**: You'll need to configure authentication credentials before accessing the application. See the [Authentication Setup Guide](./AUTH_SETUP.md) for details.
 
 ## 📁 Project Structure
 
@@ -132,8 +154,10 @@ ec2-manager/
 │   │   │   ├── settings.ts        # Settings management
 │   │   │   └── ec2-secret.ts      # EC2 secret verification
 │   │   ├── api/              # API routes
+│   │   │   └── auth/         # NextAuth.js API routes
+│   │   ├── login/            # Login page
 │   │   ├── globals.css       # Global styles
-│   │   ├── layout.tsx        # Root layout with modal provider
+│   │   ├── layout.tsx        # Root layout with session provider
 │   │   ├── page.tsx          # Dashboard page
 │   │   ├── applications/     # Applications page
 │   │   └── settings/         # Settings page
@@ -143,6 +167,8 @@ ec2-manager/
 │   │   │   ├── CredentialsList.tsx      # Credentials list with confirmations
 │   │   │   ├── SettingsForm.tsx         # Application settings form with validation
 │   │   │   └── SecretInput.tsx          # 6-character secret input component
+│   │   ├── Navigation.tsx    # Navigation with user menu
+│   │   ├── SessionProvider.tsx # NextAuth session provider
 │   │   ├── Modal.tsx         # Enhanced modal component
 │   │   ├── EC2SecretModal.tsx # EC2 secret verification modal
 │   │   ├── StartButton.tsx   # Start instance button with secret verification
@@ -151,11 +177,17 @@ ec2-manager/
 │   │   └── AutoRefresh.tsx   # Auto-refresh component
 │   ├── contexts/
 │   │   └── ModalContext.tsx  # Modal state management
-│   └── lib/
-│       ├── aws-config.ts     # AWS SDK configuration
-│       ├── dynamodb-config.ts # DynamoDB utilities
-│       └── password-utils.ts # Password hashing and validation utilities
+│   ├── lib/
+│   │   ├── auth.ts           # NextAuth.js configuration
+│   │   ├── aws-config.ts     # AWS SDK configuration
+│   │   ├── dynamodb-config.ts # DynamoDB utilities
+│   │   ├── password-utils.ts # Password hashing utilities
+│   │   └── validation-utils.ts # Validation utilities
+│   ├── middleware.ts         # Route protection middleware
+│   └── types/
+│       └── next-auth.d.ts    # NextAuth TypeScript declarations
 ├── public/                   # Static assets
+├── AUTH_SETUP.md            # Authentication setup guide
 ├── package.json
 └── README.md
 ```
@@ -177,6 +209,12 @@ The application expects a DynamoDB table with the following structure:
 
 ## 🎯 Usage
 
+### Authentication
+1. **First Time Setup**: Configure credentials in settings (requires database access)
+2. **Login**: Navigate to `/login` and enter your username and password
+3. **Access**: All pages are protected and require authentication
+4. **Logout**: Use the user menu in the navigation to sign out
+
 ### Dashboard
 1. Navigate to the dashboard to view all EC2 instances
 2. Use the statistics cards to get an overview
@@ -184,7 +222,7 @@ The application expects a DynamoDB table with the following structure:
 4. View recent instances and instance type distribution
 
 ### Adding Credentials
-1. Go to Settings page
+1. Go to Settings page (requires authentication)
 2. Click "Add New Credential" button
 3. Fill in the modal form with your AWS credentials
 4. Click "Save Credentials" to store them
@@ -197,7 +235,7 @@ The application expects a DynamoDB table with the following structure:
 5. All actions show confirmation modals for safety
 
 ### Application Settings
-1. Configure username and password in the settings panel
+1. Configure username and password in the settings panel (requires authentication)
 2. **Password Requirements**:
    - At least 8 characters long
    - Contains uppercase and lowercase letters
@@ -226,9 +264,17 @@ The application expects a DynamoDB table with the following structure:
 - **Logo Click**: Click "EC2 Manager" to return to dashboard
 - **Applications**: Navigate to EC2 instances management
 - **Settings**: Access credentials and application settings
+- **User Menu**: Click username to access logout option
 - **Consistent Layout**: Same navigation across all pages
 
 ## 🔒 Security Features
+
+### Authentication Security
+- **NextAuth.js**: Professional authentication with JWT sessions
+- **Protected Routes**: All pages protected with middleware
+- **Session Management**: Secure session handling with automatic logout
+- **Login Validation**: Comprehensive form validation with error handling
+- **Automatic Redirects**: Unauthenticated users redirected to login
 
 ### Password Security
 - **bcrypt Hashing**: Passwords hashed with 12 salt rounds
