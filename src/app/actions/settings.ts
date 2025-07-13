@@ -170,6 +170,8 @@ export async function saveSettingsAction(formData: FormData): Promise<{ success:
     try {
         const username = formData.get('username') as string || '';
         const password = formData.get('password') as string || '';
+        const ec2Secret = formData.get('ec2Secret') as string || '';
+        const ec2SecretEnabled = formData.get('ec2SecretEnabled') === 'true';
 
         // Validate password if provided
         if (password) {
@@ -182,12 +184,22 @@ export async function saveSettingsAction(formData: FormData): Promise<{ success:
             }
         }
 
+        // Validate EC2 secret if enabled
+        if (ec2SecretEnabled && ec2Secret.length !== 6) {
+            return {
+                success: false,
+                message: 'EC2 secret must be exactly 6 characters long'
+            };
+        }
+
         // Hash password before storing
         const hashedPassword = await hashPassword(password);
 
         const settings = await saveSettings({
             username,
             password: hashedPassword,
+            ec2Secret: ec2SecretEnabled ? ec2Secret : '',
+            ec2SecretEnabled,
         });
 
         revalidatePath('/settings');
@@ -236,9 +248,12 @@ export async function updateSettingsAction(formData: FormData): Promise<{ succes
         const id = formData.get('id') as string || 'default';
         const username = formData.get('username') as string;
         const password = formData.get('password') as string;
+        const ec2Secret = formData.get('ec2Secret') as string;
+        const ec2SecretEnabled = formData.get('ec2SecretEnabled') === 'true';
 
         const updates: Partial<Settings> = {};
         if (username !== null) updates.username = username;
+        if (ec2SecretEnabled !== null) updates.ec2SecretEnabled = ec2SecretEnabled;
 
         // Only hash password if a new one is provided
         if (password !== null && password !== '') {
@@ -250,6 +265,17 @@ export async function updateSettingsAction(formData: FormData): Promise<{ succes
                 };
             }
             updates.password = await hashPassword(password);
+        }
+
+        // Handle EC2 secret
+        if (ec2Secret !== null) {
+            if (ec2SecretEnabled && ec2Secret.length !== 6) {
+                return {
+                    success: false,
+                    message: 'EC2 secret must be exactly 6 characters long'
+                };
+            }
+            updates.ec2Secret = ec2SecretEnabled ? ec2Secret : '';
         }
 
         const settings = await updateSettings(id, updates);

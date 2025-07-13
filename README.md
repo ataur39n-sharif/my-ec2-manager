@@ -27,8 +27,19 @@ A modern web application for managing AWS EC2 instances with real-time monitorin
 - **Username/Password Configuration**: Simple application-level authentication
 - **Password Security**: Passwords hashed using bcrypt before storage
 - **Password Validation**: Real-time password strength validation
+- **EC2 Secret Protection**: Optional 6-character secret for start/stop operations
 - **Settings Persistence**: All settings saved to DynamoDB
 - **Default Values**: Automatic loading of saved settings
+
+### EC2 Secret Protection
+- **6-Character Secret**: Exactly 6 characters required when enabled
+- **Individual Input Boxes**: Modern 6-box input interface for secret entry
+- **Auto-focus Navigation**: Seamless keyboard navigation between boxes
+- **Paste Support**: Paste functionality for easy secret entry
+- **Start/Stop Protection**: Required for critical EC2 operations when enabled
+- **Security Modal**: Professional modal for secret verification
+- **Optional Feature**: Can be enabled/disabled in settings
+- **Real-time Validation**: Immediate feedback on secret length
 
 ### Enhanced User Experience
 - **Professional Navigation**: Clean navigation with clickable logo and consistent layout
@@ -38,11 +49,13 @@ A modern web application for managing AWS EC2 instances with real-time monitorin
 - **Loading States**: Visual feedback for all operations
 - **Error Handling**: Comprehensive error handling with user-friendly messages
 - **Password Requirements**: Clear password strength requirements and validation
+- **Secret Input UX**: Intuitive 6-box secret input with keyboard shortcuts
 
 ### Technical Features
 - **DynamoDB Integration**: Secure storage for credentials and settings
 - **AWS SDK Integration**: Real EC2 instance management
 - **Password Hashing**: bcrypt with 12 salt rounds for maximum security
+- **Secret Verification**: Server-side secret validation for EC2 operations
 - **Responsive Design**: Works seamlessly on desktop and mobile
 - **Modern UI**: Clean, intuitive interface with smooth animations
 - **Type Safety**: Full TypeScript support
@@ -115,6 +128,9 @@ ec2-manager/
 ├── src/
 │   ├── app/
 │   │   ├── actions/          # Server actions for data operations
+│   │   │   ├── applications.ts    # EC2 instance operations
+│   │   │   ├── settings.ts        # Settings management
+│   │   │   └── ec2-secret.ts      # EC2 secret verification
 │   │   ├── api/              # API routes
 │   │   ├── globals.css       # Global styles
 │   │   ├── layout.tsx        # Root layout with modal provider
@@ -125,10 +141,12 @@ ec2-manager/
 │   │   ├── settings/         # Settings-related components
 │   │   │   ├── CredentialsForm.tsx      # Credentials form (modal)
 │   │   │   ├── CredentialsList.tsx      # Credentials list with confirmations
-│   │   │   └── SettingsForm.tsx         # Application settings form with validation
+│   │   │   ├── SettingsForm.tsx         # Application settings form with validation
+│   │   │   └── SecretInput.tsx          # 6-character secret input component
 │   │   ├── Modal.tsx         # Enhanced modal component
-│   │   ├── StartButton.tsx   # Start instance button
-│   │   ├── StopButton.tsx    # Stop instance button
+│   │   ├── EC2SecretModal.tsx # EC2 secret verification modal
+│   │   ├── StartButton.tsx   # Start instance button with secret verification
+│   │   ├── StopButton.tsx    # Stop instance button with secret verification
 │   │   ├── CancelButton.tsx  # Cancel operation button
 │   │   └── AutoRefresh.tsx   # Auto-refresh component
 │   ├── contexts/
@@ -190,6 +208,20 @@ The application expects a DynamoDB table with the following structure:
 5. Settings are automatically saved to DynamoDB
 6. Default values are loaded on page refresh
 
+### EC2 Secret Protection
+1. **Enable Secret Protection**: Check the "Enable EC2 secret for start/stop operations" checkbox
+2. **Set 6-Character Secret**: Use the 6-box input interface to enter your secret
+3. **Secret Requirements**:
+   - Exactly 6 characters long
+   - Can be any combination of letters, numbers, and symbols
+   - Required when starting or stopping EC2 instances
+4. **Using the Secret Input**:
+   - Type in each box individually
+   - Use arrow keys to navigate between boxes
+   - Paste functionality supported
+   - Backspace works intelligently
+5. **Start/Stop Operations**: When secret is enabled, you'll be prompted to enter it before any EC2 operation
+
 ### Navigation
 - **Logo Click**: Click "EC2 Manager" to return to dashboard
 - **Applications**: Navigate to EC2 instances management
@@ -205,6 +237,14 @@ The application expects a DynamoDB table with the following structure:
 - **No Plain Text**: Passwords never stored or transmitted in plain text
 - **Strong Requirements**: Enforced password complexity rules
 
+### EC2 Secret Protection
+- **6-Character Secret**: Exactly 6 characters required when enabled
+- **Server-side Verification**: Secret verified on server before EC2 operations
+- **Optional Security Layer**: Can be enabled/disabled per user preference
+- **Critical Operation Protection**: Required for start/stop operations when enabled
+- **Professional UI**: Modern 6-box input with keyboard navigation
+- **Secure Modal**: Dedicated modal for secret verification
+
 ### Credential Management
 - **Confirmation Modals**: All destructive actions require confirmation
 - **Type-to-Delete**: Delete action requires typing "delete" for security
@@ -217,15 +257,25 @@ The application expects a DynamoDB table with the following structure:
 - **Visual Feedback**: Different modal types for different actions
 - **Loading States**: Clear indication of ongoing operations
 - **Error Handling**: Comprehensive error messages and recovery
+- **Secret Input UX**: Intuitive interface with keyboard shortcuts
 
 ## 🎨 User Interface Features
 
 ### Modal System
-- **5 Modal Types**: Error, Success, Info, Warning, Confirmation
+- **6 Modal Types**: Error, Success, Info, Warning, Confirmation, EC2 Secret
 - **Content Modals**: Support for custom content and forms
 - **Confirmation Modals**: Secure action confirmations
+- **Secret Verification Modal**: Professional interface for EC2 secret entry
 - **Auto-close**: Configurable auto-close for notifications
 - **Responsive**: Works on all screen sizes
+
+### Secret Input Component
+- **6 Individual Boxes**: Modern interface for 6-character secret entry
+- **Keyboard Navigation**: Arrow keys, Home, End, Backspace support
+- **Paste Functionality**: Paste entire secret at once
+- **Auto-focus**: Automatic focus progression as user types
+- **Visual Feedback**: Clear focus states and validation
+- **Accessibility**: Full keyboard and screen reader support
 
 ### Interactive Elements
 - **Pointer Cursors**: All clickable elements show hand cursor
@@ -268,6 +318,12 @@ The application expects a DynamoDB table with the following structure:
    - Check that bcryptjs is properly installed
    - Verify password validation functions are working
 
+6. **EC2 Secret Issues**
+   - Ensure secret is exactly 6 characters long
+   - Check that secret protection is enabled in settings
+   - Verify secret is correctly saved in DynamoDB
+   - Check server-side verification is working
+
 ### Performance Tips
 - Use appropriate AWS regions for better latency
 - Consider using IAM roles instead of access keys for production
@@ -295,4 +351,4 @@ For support and questions:
 
 ---
 
-**Note**: This application requires proper AWS credentials and permissions to function correctly. Always follow AWS security best practices when configuring credentials. The enhanced confirmation system and password hashing help prevent accidental data loss and ensure secure password storage while maintaining a smooth user experience.
+**Note**: This application requires proper AWS credentials and permissions to function correctly. Always follow AWS security best practices when configuring credentials. The enhanced confirmation system, password hashing, and EC2 secret protection help prevent accidental data loss and ensure secure operations while maintaining a smooth user experience.

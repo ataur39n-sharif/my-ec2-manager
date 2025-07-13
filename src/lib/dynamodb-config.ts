@@ -27,6 +27,8 @@ export interface Settings {
     id: string;
     username: string;
     password: string;
+    ec2Secret: string;
+    ec2SecretEnabled: boolean;
     createdAt: string;
     updatedAt: string;
 }

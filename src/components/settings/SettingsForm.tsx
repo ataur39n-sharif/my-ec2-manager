@@ -5,6 +5,7 @@ import { useModal } from '@/contexts/ModalContext';
 import type { Settings } from '@/lib/dynamodb-config';
 import { validatePassword } from '@/lib/password-utils';
 import { useEffect, useState } from 'react';
+import SecretInput from './SecretInput';
 
 interface SettingsFormProps {
     initialSettings?: Settings | null;
@@ -17,6 +18,8 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
     const [settings, setSettings] = useState({
         username: '',
         password: '',
+        ec2Secret: '',
+        ec2SecretEnabled: false,
     });
     const [passwordValidation, setPasswordValidation] = useState<{ isValid: boolean; errors: string[] }>({ isValid: true, errors: [] });
 
@@ -25,6 +28,8 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
             setSettings({
                 username: initialSettings.username || '',
                 password: '', // Don't show hashed password
+                ec2Secret: initialSettings.ec2Secret || '',
+                ec2SecretEnabled: initialSettings.ec2SecretEnabled || false,
             });
         }
     }, [initialSettings]);
@@ -50,6 +55,12 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
             return;
         }
 
+        // Validate EC2 secret if enabled
+        if (settings.ec2SecretEnabled && settings.ec2Secret.length !== 6) {
+            showError('Validation Error', 'EC2 secret must be exactly 6 characters long');
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
@@ -59,6 +70,8 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
             }
             formData.append('username', settings.username);
             formData.append('password', settings.password);
+            formData.append('ec2Secret', settings.ec2Secret);
+            formData.append('ec2SecretEnabled', settings.ec2SecretEnabled.toString());
 
             const result = initialSettings
                 ? await updateSettingsAction(formData)
@@ -191,10 +204,53 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
                 </div>
             </div>
 
+            <div>
+                <div className="flex items-center justify-between mb-4">
+                    <label className="text-sm font-medium text-gray-700">
+                        EC2 Secret Protection
+                    </label>
+                    <div className="flex items-center">
+                        <input
+                            type="checkbox"
+                            id="ec2SecretEnabled"
+                            checked={settings.ec2SecretEnabled}
+                            onChange={(e) => setSettings(prev => ({
+                                ...prev,
+                                ec2SecretEnabled: e.target.checked,
+                                ec2Secret: e.target.checked ? prev.ec2Secret : ''
+                            }))}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
+                        />
+                        <label htmlFor="ec2SecretEnabled" className="ml-2 text-sm text-gray-700 cursor-pointer">
+                            Enable EC2 secret for start/stop operations
+                        </label>
+                    </div>
+                </div>
+
+                {settings.ec2SecretEnabled && (
+                    <div className="space-y-3">
+                        <SecretInput
+                            value={settings.ec2Secret}
+                            onChange={(value) => setSettings(prev => ({ ...prev, ec2Secret: value }))}
+                            placeholder="Enter 6-character secret for EC2 operations"
+                        />
+                        <div className="text-xs text-gray-400 space-y-1">
+                            <p><strong>EC2 Secret Requirements:</strong></p>
+                            <ul className="list-disc list-inside space-y-0.5">
+                                <li>Exactly 6 characters long</li>
+                                <li>Required when starting or stopping EC2 instances</li>
+                                <li>Provides additional security for critical operations</li>
+                                <li>Can be any combination of letters, numbers, and symbols</li>
+                            </ul>
+                        </div>
+                    </div>
+                )}
+            </div>
+
             <div className="pt-6">
                 <button
                     type="submit"
-                    disabled={isSubmitting || (settings.password !== '' && !passwordValidation.isValid)}
+                    disabled={isSubmitting || (settings.password !== '' && !passwordValidation.isValid) || (settings.ec2SecretEnabled && settings.ec2Secret.length !== 6)}
                     className="w-full flex justify-center items-center py-3 px-6 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
                 >
                     {isSubmitting ? (
