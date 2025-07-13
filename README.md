@@ -1,52 +1,72 @@
 # EC2 Manager
 
-A modern, real-time AWS EC2 instance management application built with Next.js 15, TypeScript, and Tailwind CSS. Monitor and control your EC2 instances with an intuitive web interface featuring real-time status updates, auto-refresh, and comprehensive instance management capabilities.
+A modern web application for managing AWS EC2 instances with real-time monitoring, credential management, and intuitive user interface.
 
 ## 🚀 Features
 
-### **Real-Time Instance Management**
-- ✅ **Live Status Monitoring**: Real-time EC2 instance status with accurate state detection
-- ✅ **Smart Status Detection**: Distinguishes between "running", "initializing", and "ready" states
-- ✅ **Auto-Refresh**: Automatic page refresh every 30 seconds with countdown timer
-- ✅ **Manual Refresh**: Instant refresh button with loading indicators
+### Dashboard
+- **Real-time EC2 Instance Data**: Fetches and displays actual AWS EC2 instances
+- **Live Statistics**: Shows total instances, running instances, and stopped instances
+- **Recent Instances**: Displays the 5 most recently launched instances
+- **Instance Type Distribution**: Visual chart showing distribution across instance types
+- **Status Indicators**: Color-coded status badges for easy identification
+- **Quick Actions**: Start/stop instances directly from the dashboard
 
-### **Instance Operations**
-- ✅ **Start Instances**: Start stopped instances with visual feedback
-- ✅ **Stop Instances**: Stop running instances safely
-- ✅ **Cancel Start Operations**: Cancel instances that are starting or initializing
-- ✅ **Status Checks**: AWS instance status check integration for accurate state reporting
+### Credential Management
+- **Modal-based Form**: Add new credentials through a clean modal interface
+- **Saved Credentials List**: Full-space display of all stored AWS credentials
+- **Quick Actions**: Add new credential button with refresh functionality
+- **Profile Management**: Support for multiple AWS credential profiles
+- **Secure Storage**: Credentials stored securely in DynamoDB
+- **Status Management**: Activate/deactivate credential profiles with confirmation
+- **Real-time Updates**: Automatic refresh after adding new credentials
+- **Enhanced Security**: Confirmation modals for all destructive actions
+- **Type-to-Delete**: Delete confirmation requires typing "delete" for security
 
-### **Enhanced User Experience**
-- ✅ **Modal System**: Professional modal dialogs for all user feedback
-- ✅ **Loading States**: Visual loading indicators for all operations
-- ✅ **Error Handling**: Comprehensive error handling with user-friendly messages
-- ✅ **Responsive Design**: Mobile-friendly interface with Tailwind CSS
-- ✅ **Real-Time Updates**: Instant status updates without page reloads
+### Application Settings
+- **Username/Password Configuration**: Simple application-level authentication
+- **Password Security**: Passwords hashed using bcrypt before storage
+- **Password Validation**: Real-time password strength validation
+- **Settings Persistence**: All settings saved to DynamoDB
+- **Default Values**: Automatic loading of saved settings
 
-### **Instance Information Display**
-- ✅ **Detailed Instance Info**: Instance type, IP addresses, launch time, tags
-- ✅ **Status Summary**: Overview of running, stopped, initializing instances
-- ✅ **Visual Status Indicators**: Color-coded status badges with icons
-- ✅ **Instance Tags**: Display and management of EC2 instance tags
-- ✅ **Real-Time Dashboard**: Homepage with live statistics and recent instances
-- ✅ **Instance Type Distribution**: Analysis of instance types and resource allocation
+### Enhanced User Experience
+- **Professional Navigation**: Clean navigation with clickable logo and consistent layout
+- **Confirmation Modals**: Secure confirmation dialogs for all important actions
+- **Interactive Elements**: All clickable elements show pointer cursor
+- **Modal System**: Comprehensive modal system with 5 different types
+- **Loading States**: Visual feedback for all operations
+- **Error Handling**: Comprehensive error handling with user-friendly messages
+- **Password Requirements**: Clear password strength requirements and validation
 
-## 🛠 Tech Stack
+### Technical Features
+- **DynamoDB Integration**: Secure storage for credentials and settings
+- **AWS SDK Integration**: Real EC2 instance management
+- **Password Hashing**: bcrypt with 12 salt rounds for maximum security
+- **Responsive Design**: Works seamlessly on desktop and mobile
+- **Modern UI**: Clean, intuitive interface with smooth animations
+- **Type Safety**: Full TypeScript support
+- **Component Architecture**: Modular, reusable components
 
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript
+## 🛠️ Technology Stack
+
+- **Frontend**: Next.js 15, React 18, TypeScript
 - **Styling**: Tailwind CSS
-- **AWS SDK**: AWS SDK v3 for EC2 operations
-- **State Management**: React Context for modal management
+- **Backend**: Next.js API Routes
+- **Database**: AWS DynamoDB
+- **AWS Integration**: AWS SDK v3
+- **Security**: bcryptjs for password hashing
 - **Package Manager**: pnpm
-- **Linting**: ESLint (ignored in production builds)
+- **State Management**: React Hooks & Context
+- **UI Components**: Custom components with modern design
 
 ## 📋 Prerequisites
 
 - Node.js 18+ 
 - pnpm package manager
-- AWS account with EC2 access
-- AWS credentials configured
+- AWS Account with EC2 access
+- DynamoDB table configured
+- AWS credentials with appropriate permissions
 
 ## 🚀 Quick Start
 
@@ -61,31 +81,32 @@ cd ec2-manager
 pnpm install
 ```
 
-### 3. Configure AWS Credentials
-Set up your AWS credentials using one of these methods:
-
-**Option A: AWS CLI**
-```bash
-aws configure
-```
-
-**Option B: Environment Variables**
-Create a `.env.local` file:
+### 3. Environment Setup
+Create a `.env.local` file in the root directory:
 ```env
+# AWS Configuration
+AWS_REGION=us-east-1
 AWS_ACCESS_KEY_ID=your_access_key
 AWS_SECRET_ACCESS_KEY=your_secret_key
-AWS_REGION=us-east-1
+
+# DynamoDB Configuration
+DYNAMODB_TABLE_NAME=ec2-manager
 ```
 
-**Option C: IAM Roles** (for EC2 deployment)
-Attach appropriate IAM role with EC2 permissions.
+### 4. DynamoDB Setup
+Follow the [DynamoDB Setup Guide](./DYNAMODB_SETUP.md) to configure your DynamoDB table.
 
-### 4. Start Development Server
+### 5. Run the Application
 ```bash
+# Development mode
 pnpm dev
+
+# Production build
+pnpm build
+pnpm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the application.
+The application will be available at `http://localhost:3000`
 
 ## 📁 Project Structure
 
@@ -93,150 +114,185 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 ec2-manager/
 ├── src/
 │   ├── app/
-│   │   ├── actions/
-│   │   │   └── applications.ts    # Server actions for EC2 operations
-│   │   ├── applications/
-│   │   │   └── page.tsx           # Main EC2 instances page
-│   │   ├── layout.tsx             # Root layout with modal provider
-│   │   └── page.tsx               # Real-time dashboard homepage
+│   │   ├── actions/          # Server actions for data operations
+│   │   ├── api/              # API routes
+│   │   ├── globals.css       # Global styles
+│   │   ├── layout.tsx        # Root layout with modal provider
+│   │   ├── page.tsx          # Dashboard page
+│   │   ├── applications/     # Applications page
+│   │   └── settings/         # Settings page
 │   ├── components/
-│   │   ├── AutoRefresh.tsx        # Auto-refresh component with countdown
-│   │   ├── CancelButton.tsx       # Cancel start operation button
-│   │   ├── Modal.tsx              # Reusable modal component
-│   │   ├── StartButton.tsx        # Start instance button
-│   │   └── StopButton.tsx         # Stop instance button
+│   │   ├── settings/         # Settings-related components
+│   │   │   ├── CredentialsForm.tsx      # Credentials form (modal)
+│   │   │   ├── CredentialsList.tsx      # Credentials list with confirmations
+│   │   │   └── SettingsForm.tsx         # Application settings form with validation
+│   │   ├── Modal.tsx         # Enhanced modal component
+│   │   ├── StartButton.tsx   # Start instance button
+│   │   ├── StopButton.tsx    # Stop instance button
+│   │   ├── CancelButton.tsx  # Cancel operation button
+│   │   └── AutoRefresh.tsx   # Auto-refresh component
 │   ├── contexts/
-│   │   └── ModalContext.tsx       # Global modal management
+│   │   └── ModalContext.tsx  # Modal state management
 │   └── lib/
-│       └── aws-config.ts          # AWS SDK configuration
-├── public/                        # Static assets
-├── next.config.ts                 # Next.js configuration
-├── package.json                   # Dependencies and scripts
-└── README.md                      # This file
+│       ├── aws-config.ts     # AWS SDK configuration
+│       ├── dynamodb-config.ts # DynamoDB utilities
+│       └── password-utils.ts # Password hashing and validation utilities
+├── public/                   # Static assets
+├── package.json
+└── README.md
 ```
 
 ## 🔧 Configuration
 
 ### AWS Permissions
-Your AWS credentials need the following EC2 permissions:
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ec2:DescribeInstances",
-                "ec2:DescribeInstanceStatus",
-                "ec2:StartInstances",
-                "ec2:StopInstances"
-            ],
-            "Resource": "*"
-        }
-    ]
-}
-```
+Ensure your AWS credentials have the following permissions:
+- `ec2:DescribeInstances`
+- `ec2:StartInstances`
+- `ec2:StopInstances`
+- `dynamodb:*` (for the ec2-manager table)
 
-### Environment Variables
-Create a `.env.local` file for local development:
-```env
-AWS_ACCESS_KEY_ID=your_access_key
-AWS_SECRET_ACCESS_KEY=your_secret_key
-AWS_REGION=us-east-1
-```
+### DynamoDB Table Schema
+The application expects a DynamoDB table with the following structure:
+- **Table Name**: `ec2-manager`
+- **Partition Key**: `id` (String)
+- **Sort Key**: `type` (String)
 
-## 🚀 Deployment
+## 🎯 Usage
 
-### Build for Production
-```bash
-pnpm build
-```
+### Dashboard
+1. Navigate to the dashboard to view all EC2 instances
+2. Use the statistics cards to get an overview
+3. Click on instance actions to start/stop instances
+4. View recent instances and instance type distribution
 
-### Start Production Server
-```bash
-pnpm start
-```
+### Adding Credentials
+1. Go to Settings page
+2. Click "Add New Credential" button
+3. Fill in the modal form with your AWS credentials
+4. Click "Save Credentials" to store them
 
-### Deploy to Vercel
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Add environment variables in Vercel dashboard
-4. Deploy automatically
+### Managing Credentials
+1. View all saved credentials in the expanded list
+2. Use the refresh button to update the list
+3. **Activate/Deactivate**: Click button → Confirm in modal
+4. **Delete**: Click delete → Type "delete" → Confirm deletion
+5. All actions show confirmation modals for safety
 
-## 🎯 Key Features Explained
+### Application Settings
+1. Configure username and password in the settings panel
+2. **Password Requirements**:
+   - At least 8 characters long
+   - Contains uppercase and lowercase letters
+   - Contains at least one number
+   - Contains at least one special character
+3. Real-time password validation with visual feedback
+4. Passwords are securely hashed before storage
+5. Settings are automatically saved to DynamoDB
+6. Default values are loaded on page refresh
 
-### **Smart Status Detection**
-The application uses AWS instance status checks to accurately determine instance state:
-- **Running**: Instance is running and status checks are passed
-- **Initializing**: Instance is running but status checks haven't passed yet
-- **Starting**: Instance is in pending state
-- **Stopping**: Instance is being stopped
-- **Stopped**: Instance is stopped
+### Navigation
+- **Logo Click**: Click "EC2 Manager" to return to dashboard
+- **Applications**: Navigate to EC2 instances management
+- **Settings**: Access credentials and application settings
+- **Consistent Layout**: Same navigation across all pages
 
-### **Cancel Start Operation**
-Unlike traditional EC2 management tools, this application allows you to cancel start operations even after the instance has transitioned to "running" state, as long as it's still initializing (status checks not passed).
+## 🔒 Security Features
 
-### **Real-Time Updates**
-- **Auto-refresh**: Every 30 seconds with countdown timer
-- **Manual refresh**: Instant refresh with loading indicators
-- **Operation feedback**: Immediate visual feedback for all operations
-- **Modal notifications**: Professional modal dialogs for all user interactions
-- **Live dashboard**: Homepage with real-time statistics and recent instances
-- **Dynamic alerts**: Smart warnings for ongoing operations
+### Password Security
+- **bcrypt Hashing**: Passwords hashed with 12 salt rounds
+- **Password Validation**: Real-time strength validation
+- **Secure Storage**: Hashed passwords stored in DynamoDB
+- **No Plain Text**: Passwords never stored or transmitted in plain text
+- **Strong Requirements**: Enforced password complexity rules
 
-### **Modal System**
-Comprehensive modal system with:
-- **4 Types**: Error, Success, Info, Warning
-- **Auto-close**: 5-second default with user override
-- **Immediate close**: Users can close modals anytime
-- **Context-aware**: Different colors and icons for each type
+### Credential Management
+- **Confirmation Modals**: All destructive actions require confirmation
+- **Type-to-Delete**: Delete action requires typing "delete" for security
+- **Secure Storage**: AWS credentials encrypted and stored in DynamoDB
+- **No Client Exposure**: No credentials logged or exposed in client-side code
+- **Server-side Operations**: All AWS operations performed server-side
+
+### User Experience Security
+- **Clear Warnings**: Explicit messaging about irreversible actions
+- **Visual Feedback**: Different modal types for different actions
+- **Loading States**: Clear indication of ongoing operations
+- **Error Handling**: Comprehensive error messages and recovery
+
+## 🎨 User Interface Features
+
+### Modal System
+- **5 Modal Types**: Error, Success, Info, Warning, Confirmation
+- **Content Modals**: Support for custom content and forms
+- **Confirmation Modals**: Secure action confirmations
+- **Auto-close**: Configurable auto-close for notifications
+- **Responsive**: Works on all screen sizes
+
+### Interactive Elements
+- **Pointer Cursors**: All clickable elements show hand cursor
+- **Hover Effects**: Smooth transitions and visual feedback
+- **Loading States**: Spinners and disabled states during operations
+- **Status Indicators**: Color-coded badges for different states
+
+### Navigation
+- **Clickable Logo**: EC2 Manager text/logo navigates to dashboard
+- **Consistent Layout**: Same navigation structure across pages
+- **Active States**: Current page highlighted in navigation
+- **Responsive Design**: Mobile-friendly navigation
 
 ## 🔍 Troubleshooting
 
 ### Common Issues
 
-**1. AWS Credentials Not Found**
-```
-Error: AWS credentials not configured
-```
-**Solution**: Configure AWS credentials using AWS CLI or environment variables.
+1. **DynamoDB Connection Failed**
+   - Verify AWS credentials in `.env.local`
+   - Ensure DynamoDB table exists and is accessible
+   - Check AWS region configuration
 
-**2. EC2 Permissions Denied**
-```
-Error: User is not authorized to perform: ec2:DescribeInstances
-```
-**Solution**: Ensure your AWS user/role has the required EC2 permissions.
+2. **EC2 Instances Not Loading**
+   - Verify EC2 permissions for your AWS credentials
+   - Check AWS region matches your instances
+   - Ensure instances are in the configured region
 
-**3. Build Errors**
-```
-Error: ESLint errors found
-```
-**Solution**: ESLint is ignored in production builds. For development, fix linting issues or run `pnpm lint` to see details.
+3. **Modal Not Opening**
+   - Check browser console for JavaScript errors
+   - Verify ModalContext is properly configured
+   - Ensure all dependencies are installed
+
+4. **Confirmation Modals Not Working**
+   - Check that ModalContext is wrapped around the app
+   - Verify all modal functions are properly imported
+   - Ensure TypeScript types are correct
+
+5. **Password Validation Issues**
+   - Ensure password meets all requirements
+   - Check that bcryptjs is properly installed
+   - Verify password validation functions are working
 
 ### Performance Tips
 - Use appropriate AWS regions for better latency
 - Consider using IAM roles instead of access keys for production
 - Monitor AWS API rate limits for large instance counts
+- Use pnpm for faster package installation and better dependency management
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
-## 🙏 Acknowledgments
+## 🆘 Support
 
-- Built with [Next.js](https://nextjs.org/)
-- Styled with [Tailwind CSS](https://tailwindcss.com/)
-- AWS integration with [AWS SDK v3](https://aws.amazon.com/sdk-for-javascript/)
-- Icons and UI components from various open-source libraries
+For support and questions:
+- Create an issue in the repository
+- Check the troubleshooting section
+- Review the DynamoDB setup guide
 
 ---
 
-**Note**: This application requires proper AWS credentials and permissions to function. Always follow AWS security best practices when deploying to production environments.
+**Note**: This application requires proper AWS credentials and permissions to function correctly. Always follow AWS security best practices when configuring credentials. The enhanced confirmation system and password hashing help prevent accidental data loss and ensure secure password storage while maintaining a smooth user experience.

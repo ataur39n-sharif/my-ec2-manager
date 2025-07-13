@@ -6,11 +6,17 @@ import { createContext, ReactNode, useCallback, useContext, useState } from 'rea
 interface ModalState {
     isOpen: boolean;
     title: string;
-    message: string;
-    type: 'error' | 'success' | 'info' | 'warning';
+    message?: string;
+    children?: ReactNode;
+    type: 'error' | 'success' | 'info' | 'warning' | 'confirmation';
     showCloseButton: boolean;
     autoClose: boolean;
     autoCloseDelay: number;
+    size: 'sm' | 'md' | 'lg' | 'xl';
+    onConfirm?: () => void;
+    confirmText?: string;
+    cancelText?: string;
+    showCancelButton?: boolean;
 }
 
 interface ModalContextType {
@@ -20,6 +26,8 @@ interface ModalContextType {
     showSuccess: (title: string, message: string) => void;
     showInfo: (title: string, message: string) => void;
     showWarning: (title: string, message: string) => void;
+    showContentModal: (title: string, children: ReactNode, size?: 'sm' | 'md' | 'lg' | 'xl') => void;
+    showConfirmationModal: (title: string, message: string, onConfirm: () => void, confirmText?: string, cancelText?: string) => void;
 }
 
 const ModalContext = createContext<ModalContextType | undefined>(undefined);
@@ -29,10 +37,16 @@ export function ModalProvider({ children }: { children: ReactNode }) {
         isOpen: false,
         title: '',
         message: '',
+        children: undefined,
         type: 'info',
         showCloseButton: true,
         autoClose: true,
-        autoCloseDelay: 5000
+        autoCloseDelay: 5000,
+        size: 'md',
+        onConfirm: undefined,
+        confirmText: 'Confirm',
+        cancelText: 'Cancel',
+        showCancelButton: false
     });
 
     const showModal = useCallback((config: Omit<ModalState, 'isOpen'>) => {
@@ -56,7 +70,8 @@ export function ModalProvider({ children }: { children: ReactNode }) {
             type: 'error',
             showCloseButton: true,
             autoClose: true,
-            autoCloseDelay: 5000
+            autoCloseDelay: 5000,
+            size: 'md'
         });
     }, [showModal]);
 
@@ -67,7 +82,8 @@ export function ModalProvider({ children }: { children: ReactNode }) {
             type: 'success',
             showCloseButton: true,
             autoClose: true,
-            autoCloseDelay: 5000
+            autoCloseDelay: 5000,
+            size: 'md'
         });
     }, [showModal]);
 
@@ -78,7 +94,8 @@ export function ModalProvider({ children }: { children: ReactNode }) {
             type: 'info',
             showCloseButton: true,
             autoClose: true,
-            autoCloseDelay: 5000
+            autoCloseDelay: 5000,
+            size: 'md'
         });
     }, [showModal]);
 
@@ -89,7 +106,36 @@ export function ModalProvider({ children }: { children: ReactNode }) {
             type: 'warning',
             showCloseButton: true,
             autoClose: true,
-            autoCloseDelay: 5000
+            autoCloseDelay: 5000,
+            size: 'md'
+        });
+    }, [showModal]);
+
+    const showContentModal = useCallback((title: string, children: ReactNode, size: 'sm' | 'md' | 'lg' | 'xl' = 'md') => {
+        showModal({
+            title,
+            children,
+            type: 'info',
+            showCloseButton: true,
+            autoClose: false,
+            autoCloseDelay: 5000,
+            size
+        });
+    }, [showModal]);
+
+    const showConfirmationModal = useCallback((title: string, message: string, onConfirm: () => void, confirmText: string = 'Confirm', cancelText: string = 'Cancel') => {
+        showModal({
+            title,
+            message,
+            type: 'confirmation',
+            showCloseButton: false,
+            autoClose: false,
+            autoCloseDelay: 5000,
+            size: 'md',
+            onConfirm,
+            confirmText,
+            cancelText,
+            showCancelButton: true
         });
     }, [showModal]);
 
@@ -99,7 +145,9 @@ export function ModalProvider({ children }: { children: ReactNode }) {
         showError,
         showSuccess,
         showInfo,
-        showWarning
+        showWarning,
+        showContentModal,
+        showConfirmationModal
     };
 
     return (
@@ -110,10 +158,16 @@ export function ModalProvider({ children }: { children: ReactNode }) {
                 onClose={hideModal}
                 title={modalState.title}
                 message={modalState.message}
+                children={modalState.children}
                 type={modalState.type}
                 showCloseButton={modalState.showCloseButton}
                 autoClose={modalState.autoClose}
                 autoCloseDelay={modalState.autoCloseDelay}
+                size={modalState.size}
+                onConfirm={modalState.onConfirm}
+                confirmText={modalState.confirmText}
+                cancelText={modalState.cancelText}
+                showCancelButton={modalState.showCancelButton}
             />
         </ModalContext.Provider>
     );

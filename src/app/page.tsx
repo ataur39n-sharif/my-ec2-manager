@@ -71,21 +71,23 @@ export default async function Home() {
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <h1 className="text-2xl font-bold text-gray-900">EC2 Manager</h1>
+                <Link href="/" className="text-2xl font-bold text-gray-900 hover:text-gray-700 transition-colors cursor-pointer">
+                  EC2 Manager
+                </Link>
               </div>
             </div>
             <nav className="hidden md:flex space-x-8">
-              <Link
-                href="/"
-                className="text-gray-900 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium cursor-pointer"
-              >
-                Dashboard
-              </Link>
               <Link
                 href="/applications"
                 className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium cursor-pointer"
               >
                 Applications
+              </Link>
+              <Link
+                href="/settings"
+                className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium cursor-pointer"
+              >
+                Settings
               </Link>
             </nav>
           </div>
@@ -235,23 +237,26 @@ export default async function Home() {
                 </div>
               </div>
 
-              <div className="group relative bg-gray-50 rounded-lg p-6">
+              <Link
+                href="/settings"
+                className="group relative bg-gray-50 rounded-lg p-6 hover:bg-gray-100 transition-colors cursor-pointer"
+              >
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                    <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center group-hover:bg-purple-600 transition-colors">
                       <span className="text-white text-lg">⚙️</span>
                     </div>
                   </div>
                   <div className="ml-4">
-                    <h4 className="text-lg font-medium text-gray-900">
+                    <h4 className="text-lg font-medium text-gray-900 group-hover:text-purple-600 transition-colors">
                       Settings
                     </h4>
                     <p className="text-sm text-gray-500">
-                      Configure AWS credentials and preferences (Coming Soon)
+                      Configure AWS credentials and application preferences
                     </p>
                   </div>
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </div>
