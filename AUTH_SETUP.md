@@ -101,14 +101,14 @@ The table will store:
 
 1. **First Time Setup**: Configure username/password in settings (requires database access)
 2. **Login**: Navigate to `/login` and sign in with your credentials
-3. **Access**: All pages including settings are protected and require authentication
+3. **Access**: All pages except login require authentication
 
 ## Features
 
 - ✅ Single admin account system
 - ✅ Username/password authentication
 - ✅ Settings-based credential storage
-- ✅ Protected routes
+- ✅ Protected routes (all pages except login)
 - ✅ Session management
 - ✅ DynamoDB integration
 - ✅ Password hashing with bcrypt
@@ -122,7 +122,7 @@ The table will store:
 - Protected API routes
 - Middleware-based route protection
 - Secure password validation (minimum 8 characters)
-- All pages protected including settings
+- All pages except login protected
 
 ## File Structure
 
@@ -150,7 +150,7 @@ src/
 2. **Login**: User visits `/login` and enters credentials
 3. **Validation**: NextAuth checks credentials against settings data
 4. **Session**: JWT session is created and stored
-5. **Access**: User can access all protected pages including settings
+5. **Access**: User can access all protected pages after authentication
 
 ## Troubleshooting
 
@@ -189,7 +189,7 @@ openssl rand -base64 32
 
 1. Ensure credentials are configured in settings
 2. Sign in at `/login`
-3. Verify you can access protected pages including settings
+3. Verify you can access all protected pages
 4. Test logout functionality
 5. Verify unauthenticated users are redirected to login
 

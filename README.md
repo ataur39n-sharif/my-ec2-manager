@@ -7,7 +7,7 @@ A modern web application for managing AWS EC2 instances with real-time monitorin
 ### Authentication & Security
 - **NextAuth.js Integration**: Professional authentication system with JWT sessions
 - **Username/Password Login**: Secure login with settings-based credentials
-- **Protected Routes**: All pages protected with middleware-based authentication
+- **Protected Routes**: All pages except login protected with middleware-based authentication
 - **Session Management**: Persistent sessions with automatic logout
 - **Navigation with User Menu**: User dropdown with logout functionality
 - **Login Page**: Clean, responsive login interface with validation
@@ -66,7 +66,7 @@ A modern web application for managing AWS EC2 instances with real-time monitorin
 - **NextAuth.js**: Professional authentication with JWT sessions
 - **Password Hashing**: bcrypt with 12 salt rounds for maximum security
 - **Secret Verification**: Server-side secret validation for EC2 operations
-- **Middleware Protection**: Route-level authentication with automatic redirects
+- **Middleware Protection**: All routes except login protected with automatic redirects
 - **Validation System**: Comprehensive validation utilities for forms and data
 - **Responsive Design**: Works seamlessly on desktop and mobile
 - **Modern UI**: Clean, intuitive interface with smooth animations
@@ -212,7 +212,7 @@ The application expects a DynamoDB table with the following structure:
 ### Authentication
 1. **First Time Setup**: Configure credentials in settings (requires database access)
 2. **Login**: Navigate to `/login` and enter your username and password
-3. **Access**: All pages are protected and require authentication
+3. **Access**: All pages except login require authentication
 4. **Logout**: Use the user menu in the navigation to sign out
 
 ### Dashboard
@@ -271,10 +271,10 @@ The application expects a DynamoDB table with the following structure:
 
 ### Authentication Security
 - **NextAuth.js**: Professional authentication with JWT sessions
-- **Protected Routes**: All pages protected with middleware
+- **Protected Routes**: All pages except login protected with middleware
 - **Session Management**: Secure session handling with automatic logout
 - **Login Validation**: Comprehensive form validation with error handling
-- **Automatic Redirects**: Unauthenticated users redirected to login
+- **Automatic Redirects**: Unauthenticated users redirected to login when accessing protected routes
 
 ### Password Security
 - **bcrypt Hashing**: Passwords hashed with 12 salt rounds

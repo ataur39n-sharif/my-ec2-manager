@@ -77,5 +77,16 @@ export const authOptions: NextAuthOptions = {
             }
             return session;
         },
+        async redirect({ url, baseUrl }) {
+            // After successful login, redirect to homepage
+            if (url.startsWith(baseUrl)) {
+                return `${baseUrl}/`;
+            }
+            // Allow relative callback URLs
+            else if (url.startsWith("/")) {
+                return `${baseUrl}${url}`;
+            }
+            return baseUrl;
+        },
     },
 }; 
